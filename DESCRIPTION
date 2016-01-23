@@ -8,6 +8,7 @@ Depends:
 Imports: 
     mvtnorm
 Suggests: 
+    rmarkdown,
     R.matlab,
     testthat,
     lintr
