@@ -7,6 +7,8 @@ output: pdf_document
 
 # 2.1 Weight-space View
 
+## Standard Linear Model
+
 Typical linear regression models with Gaussian noise follow the parameterization
 \begin{equation}
 f(\mathbf{x}) = \mathbf{x}^T\mathbf{w}, \qquad y = f(\mathbf{x}) + \epsilon
@@ -32,6 +34,37 @@ p(\mathbf{w}|X, \mathbf{y}) \sim \mathcal{N}(\mathbf{\bar{w}}=\frac{1}{\sigma_n^
 \end{equation}
 
 Where $A=\sigma_n^{-2}XX^T+\Sigma_p^{-1}$.
+
+## Example 1
+
+```{r, results="asis"}
+# data
+N <- 100
+beta <- cbind(c(-4, 2))
+sigma2.n <- 1
+x <- seq(0, 4, len=N)
+X <- rbind(rep(1, N), x)
+epsilon <- rnorm(N, sd=sqrt(sigma2.n))
+y <- t(X) %*% beta + epsilon
+
+# prior
+Sigma.p <- diag(100, nrow(beta))
+
+# posterior 
+A <- 1 / sigma2.n + X %*% t(X) + solve(Sigma.p)
+w.bar <- 1 / sigma2.n * solve(A) %*% X %*% y
+A.inv <- solve(A)
+
+# 95% credible interval
+se <- cbind(qnorm(0.975) * sqrt(diag(A.inv))) %*% c(-1, 1)
+ci <- se + cbind(w.bar, w.bar)
+rownames(ci) <- c("w[1]", "w[2]")
+library(xtable)
+options(xtable.comment = FALSE)
+xtable(ci)
+```
+
+## Projections of Inputs into Feature Space
 
 # 2.2 Function-space View
 

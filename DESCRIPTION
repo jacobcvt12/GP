@@ -11,7 +11,8 @@ Suggests:
     rmarkdown,
     R.matlab,
     testthat,
-    lintr
+    lintr,
+    xtable
 License: GPL-3
 LazyData: true
 RoxygenNote: 5.0.1
