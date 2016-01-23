@@ -7,6 +7,19 @@ output: pdf_document
 
 # 2.1 Weight-space View
 
+Typical linear regression models with Gaussian noise follow the parameterization
+\begin{equation}
+f(\mathbf{x}) = \mathbf{x}^T\mathbf{w}, \qquad y = f(\mathbf{x}) + \epsilon
+\end{equation}
+
+where $\mathbf{x}$ is the input, and $\mathbf{w}$ are the parameters of interest relating the input to the output $y$. We assume that $\epsilon$'s are IID Gaussian with mean 0, generally written as $\epsilon \sim \mathcal{N}(0, \sigma_n^2)$.
+
+The *likelihood* of such a model is written as
+
+\begin{equation}
+p(\mathbf{y}|X, \mathbf{w}) = \mathcal{N}(X^T\mathbf{w}, \sigma_n^2 I)
+\end{equation}
+
 # 2.2 Function-space View
 
 # 2.3 Varying the Hyperparameters
