@@ -9,6 +9,7 @@ Imports:
     mvtnorm
 Suggests: 
     rmarkdown,
+    ggplot2,
     R.matlab,
     testthat,
     lintr,
