@@ -20,6 +20,19 @@ The *likelihood* of such a model is written as
 p(\mathbf{y}|X, \mathbf{w}) = \mathcal{N}(X^T\mathbf{w}, \sigma_n^2 I)
 \end{equation}
 
+We typically use a non-informative prior
+\begin{equation}
+\mathbf{w} \sim \mathcal{N}(\mathbf{0}, \Sigma_p)
+\end{equation}
+
+Combining the prior and likelihood, we arrive at the posterior
+
+\begin{equation}
+p(\mathbf{w}|X, \mathbf{y}) \sim \mathcal{N}(\mathbf{\bar{w}}=\frac{1}{\sigma_n^2}A^{-1}X\mathbf{y}, A^{-1})
+\end{equation}
+
+Where $A=\sigma_n^{-2}XX^T+\Sigma_p^{-1}$.
+
 # 2.2 Function-space View
 
 # 2.3 Varying the Hyperparameters
