@@ -1,0 +1,22 @@
+---
+title: "Chapter 2: Regression"
+author: "Jacob Carey"
+date: \today
+output: pdf_document
+---
+
+# 2.1 Weight-space View
+
+# 2.2 Function-space View
+
+# 2.3 Varying the Hyperparameters
+
+# 2.4 Decision Theory for Regression
+
+# 2.5 An Example Application
+
+# 2.6 Smoothing, Weight Functions and Equivalent Kernels
+
+# 2.7 Incorporating Explicit Basis Functions
+
+# Exercises
