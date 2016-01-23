@@ -112,3 +112,11 @@ sarcos.inv.test <- readMat("data/sarcos_inv_test.mat")$sarcos.inv.test
 # 2.7 Incorporating Explicit Basis Functions
 
 # Exercises
+
+1. Replicate the generation of random functions from Figure 2.2. Use a regular (or random) grid of scalar inputs and the covariance function from eq. (2.16). Hints on how to generate random samples from multi-variate Gaussian distributions are given in section A.2. Invent some training data points, and make random draws from the resulting GP posterior using eq. (2.19).
+
+2. In eq. (2.11) we saw that the predictive variance at $\mathbf{x}_*$ under the feature space regression model was var$(f(\mathbf{x}_*)=\phi(\mathbf{x}_*)^TA^{-1}\phi(\mathbf{x}_*)$. Show that cov$(f(\mathbf{x}_*),f(\mathbf{x}_*'))=\phi(\mathbf{x}_*)^TA^{-1}\phi(\mathbf{x}_*')$. Check that this is compatible with the expression given in eq. (2.24).
+
+3. The Wiener process is defined for $x\geq0$ and has $f(0) = 0$. (See section B.2.1 for further details.) It has mean zero and a non-stationary covariance function $k(x, x')$ = min$(x, x')$. If we condition on the Wiener process passing through $f(1) = 0$ we obtain a process known as the Brownian bridge (or tied-down Wiener process). Show that this process has covariance $k(x,x') = \min(x,x')-xx'$ for $0 \leq x,x' \leq 1$ and mean 0. Write a computer program to draw samples from this process at a finite grid of $x$ points in [0, 1].
+
+4. Let $\text{var}_n(f(\mathbf{x}_*))$ be the predictive variance of a Gaussian process regression model at $\mathbf{x}_*$ given a dataset of size $n$. The corresponding predictive variance using a dataset of only the first $n-1$ training points is denoted $\text{var}_{n-1}(f(\mathbf{x}_*))$. Show that $\text{var}_n(f(\mathbf{x}_*)) \leq \text{var}_{n-1}(f(\mathbf{x}_*))$, i.e. that the predictive variance at $\mathbf{x}_*$ cannot increase as more training data is obtained. One way to approach this problem is to use the partitioned matrix equations given in section A.3 to decompose $\text{var}_n(f(\mathbf{x}_*)) = k(\mathbf{x}_*, \mathbf{x}_*) - \mathbf{k}^T_* (K+\sigma_n^2I)^{-1}\mathbf{k}_*$. 
