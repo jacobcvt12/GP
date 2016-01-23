@@ -13,7 +13,9 @@ Suggests:
     R.matlab,
     testthat,
     lintr,
-    xtable
+    xtable,
+    fields,
+    tidyr
 License: GPL-3
 LazyData: true
 RoxygenNote: 5.0.1

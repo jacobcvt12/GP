@@ -115,6 +115,59 @@ sarcos.inv.test <- readMat("data/sarcos_inv_test.mat")$sarcos.inv.test
 
 1. Replicate the generation of random functions from Figure 2.2. Use a regular (or random) grid of scalar inputs and the covariance function from eq. (2.16). Hints on how to generate random samples from multi-variate Gaussian distributions are given in section A.2. Invent some training data points, and make random draws from the resulting GP posterior using eq. (2.19).
 
+```{r p1}
+# libraries
+library(ggplot2)
+library(mvtnorm)
+library(fields)
+library(tidyr)
+theme_set(theme_classic())
+
+# data
+f.points <- data.frame(x=c(-4,-3,-1,0,2), y=c(-2,0,1,2,-1))
+ggplot(f.points, aes(x, y)) +
+    geom_point(shape="+", size=6)
+
+# K function
+K <- function(X.p, X.q=NULL) {
+    sigma <- exp(-0.5 * rdist(X.p, X.q) ^ 2)
+    return(sigma)
+}
+
+# prior
+set.seed(1)
+N <- 500 # control fineness
+x.star <- seq(-5, 5, len=N) # grid
+f.star <- rmvnorm(3, mean=rep(0, N), sigma=K(x.star), method="svd")
+
+# plot draws from prior
+data <- data.frame(t(f.star))
+data$x <- x.star
+data <- gather(data, draw, f, X1:X3)
+
+ggplot(data, aes(x=x, y=f)) +
+    geom_line(aes(colour=draw, linetype=draw)) +
+    geom_rect(aes(xmin=-Inf, xmax=Inf, 
+                  ymin=qnorm(0.025), ymax=qnorm(0.975)),
+              fill="lightgrey", alpha=0.1)
+
+# posterior
+x.star <- seq(-5, 5, len=N) # grid
+x <- f.points$x
+f <- f.points$y
+post.mean <- K(x.star, x) %*% solve(K(x, x)) %*% f
+post.var <- K(x.star, x.star) - K(x.star, x) %*% solve(K(x, x)) %*% K(x, x.star)
+post.draws <- rmvnorm(10, post.mean, post.var, method="svd")
+post.data <- data.frame(t(post.draws))
+post.data$x <- x.star
+post.data <- gather(post.data, draw, f, X1:X10)
+
+ggplot(post.data, aes(x=x, y=f)) +
+    geom_line(aes(colour=draw)) +
+    geom_point(data=f.points, aes(x, y), shape="+", size=6) +
+    guides(colour=FALSE)
+```
+
 2. In eq. (2.11) we saw that the predictive variance at $\mathbf{x}_*$ under the feature space regression model was var$(f(\mathbf{x}_*)=\phi(\mathbf{x}_*)^TA^{-1}\phi(\mathbf{x}_*)$. Show that cov$(f(\mathbf{x}_*),f(\mathbf{x}_*'))=\phi(\mathbf{x}_*)^TA^{-1}\phi(\mathbf{x}_*')$. Check that this is compatible with the expression given in eq. (2.24).
 
 3. The Wiener process is defined for $x\geq0$ and has $f(0) = 0$. (See section B.2.1 for further details.) It has mean zero and a non-stationary covariance function $k(x, x')$ = min$(x, x')$. If we condition on the Wiener process passing through $f(1) = 0$ we obtain a process known as the Brownian bridge (or tied-down Wiener process). Show that this process has covariance $k(x,x') = \min(x,x')-xx'$ for $0 \leq x,x' \leq 1$ and mean 0. Write a computer program to draw samples from this process at a finite grid of $x$ points in [0, 1].
