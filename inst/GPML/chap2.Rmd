@@ -15,6 +15,13 @@ output: pdf_document
 
 # 2.5 An Example Application
 
+```{r data}
+# read in matrices
+library(R.matlab)
+sarcos.inv <- readMat("data/sarcos_inv.mat")$sarcos.inv
+sarcos.inv.test <- readMat("data/sarcos_inv_test.mat")$sarcos.inv.test
+```
+
 # 2.6 Smoothing, Weight Functions and Equivalent Kernels
 
 # 2.7 Incorporating Explicit Basis Functions
