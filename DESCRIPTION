@@ -9,7 +9,8 @@ Imports:
     mvtnorm
 Suggests: 
     R.matlab,
-    testthat
+    testthat,
+    lintr
 License: GPL-3
 LazyData: true
 RoxygenNote: 5.0.1
