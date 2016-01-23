@@ -3,8 +3,12 @@ Title: Gaussian Processes
 Version: 0.0.0.9000
 Authors@R: person("Jacob", "Carey", email = "jacobcvt12@gmail.com", role = c("aut", "cre"))
 Description: Bayesian statistics with Gaussian Processes
-Depends: R (>= 3.1.0)
-Imports: mvtnorm
-Suggests: R.matlab
+Depends:
+    R (>= 3.1.0)
+Imports:
+    mvtnorm
+Suggests:
+    R.matlab
 License: GPL-3
 LazyData: true
+RoxygenNote: 5.0.1
