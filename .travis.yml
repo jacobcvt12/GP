@@ -1,0 +1,17 @@
+language: 
+    - r
+
+os:
+    - linux
+
+sudo: required
+
+r_packages:
+    - rmarkdown
+
+notifications:
+  email:
+    recipients:
+      - jacobcvt12@gmail.com
+    on_success: change
+    on_failure: change
