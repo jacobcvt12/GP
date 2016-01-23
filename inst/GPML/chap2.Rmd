@@ -66,6 +66,32 @@ xtable(ci)
 
 ## Projections of Inputs into Feature Space
 
+To extend the Bayesian linear model further, we can project a feature $x$ using the space of powers $x: \phi(x) = (1, x, x^2, ...)^T$. Then we now define the function $f$ as
+
+\begin{equation}
+f(\mathbf{x})=\phi(\mathbf{x})^T\mathbf{w}
+\end{equation}
+
+Note that for $D$-dimensional input vector $\mathbf{x}$, $\phi$ maps to an $N$-dimensional output, where $N>>D$.
+
+**Notational considerations**: $\Phi=\Phi(X)$ is the aggregation of columns of $\phi(\mathbf{x})$ and now $A=\sigma_n^{-2} \Phi \Phi^T + \Sigma_p^{-1}$. Additionally, $\phi_*=\phi(x_*)$ and $K=\Phi^T\Sigma_p\Phi$.
+
+In such a case, the weights $w$ are less important, as it is difficult to make intuitive inference. Instead, we are interested in the posterior predictive distribution:
+
+\begin{equation}
+f_{*}|\mathbf{x}_{*},X, \mathbf{y} \sim \mathcal{N}(\frac{1}{\sigma_n^2}\phi(\mathbf{x}_{*})^TA^{-1}\Phi\mathbf{y}, \phi(\mathbf{x}_{*})^TA^{-1}\phi(\mathbf{x}_{*}))
+\end{equation}
+
+Note that this parameterization requires the inversion of $A$, and $N\times N$ matrix, where $N$ may be large. Alternatively, we can rewrite this formulation as 
+\begin{equation}
+f_{*}|\mathbf{x}_{*},X, \mathbf{y} \sim \mathcal{N}(\phi_*^T\Sigma_p\Phi(K+\sigma_n^2I)^{-1}\mathbf{y},\phi_*^T\Sigma_p\phi_*-\phi_*^T\Sigma_p\Phi(K+\sigma_n^2I)^{-1}\Phi^T\Sigma_p\phi_*)
+\end{equation}
+
+which involes inversion of smaller matrices.
+
+Since the feature space always enters in a similar fashion we define the *covariance function* or *kernel* $k(\cdot, \cdot)$ parameterized as $k(\mathbf{x}, \mathbf{x}')=\phi(\mathbf{x})^T\phi(\mathbf{x}')$.
+
+
 # 2.2 Function-space View
 
 # 2.3 Varying the Hyperparameters
