@@ -1,0 +1,59 @@
+---
+title: "Chapter 3: Classification"
+author: "Jacob Carey"
+date: \today
+output: pdf_document
+---
+
+```{r}
+# libraries
+library(ggplot2)
+library(mvtnorm)
+library(fields)
+theme_set(theme_classic())
+
+# generate binomial data for linear model
+set.seed(90210)
+N <- 100
+beta <- 2.5
+
+x.star <- seq(-10, 10, len=N ^ 2)
+x <- sample(x.star, N)
+z <- beta * x
+p <- 1 / (1 + exp(-z))
+y <- rbinom(N, 1, p)
+
+data <- data.frame(x=x, p=p, y=y)
+
+ggplot(data, aes(x, y)) +
+    geom_point() +
+    geom_line(aes(x=x, y=p))
+
+# frequentist estimate
+model <- glm(y ~ x - 1, family="binomial")
+
+# now generate binomial data for nonlinear model
+z <- sin(x)
+p <- 1 / (1 + exp(-z))
+y <- rbinom(N, 1, p)
+
+data <- data.frame(x=x, p=p, y=y)
+
+ggplot(data, aes(x, y)) +
+    geom_point() +
+    geom_line(aes(x=x, y=p))
+
+model <- glm(y ~ x - 1, family="binomial") # doesn't work
+
+# GP classification
+f <- rep(0, length(x)) # initialize to 0 
+
+log.lik <- function(f, y) {    # function to take hessian of
+    dbinom(y, 1, f, log=TRUE)
+}
+
+# repeat until convergence
+while (TRUE) {
+    # construct W (- Hessian of logistic log likelihood)
+}
+```
