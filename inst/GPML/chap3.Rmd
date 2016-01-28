@@ -51,19 +51,33 @@ K <- function(X.p, X.q=NULL) {
     return(sigma)
 }
 
-f <- rep(0, length(x)) # initialize to 0 
-K <- K(x)              # calcualte K
+f <- rep(0, length(x))   # initialize to 0 
+K <- K(x)                # calcualte K
+eps <- 0.1               # convergence criterion
+y.svm <- y
+y.svm[y.svm == 0] <- -1  # svm notation
+
+# initialize objective function to high value
+obj <- 1000
 
 # repeat until convergence
-while (TRUE) {
+while (obj > eps) {
+    # calculate probability using logistic function
+    pi <- as.vector(1 / (1 + exp(-f)))
     # construct W (- Hessian of logistic log likelihood)
-    W <- diag(-f * (1 - f))
+    W <- diag(pi * (1 - pi))
     # take square root of W for calculating B
     # can just use sqrt since W is diagonal
     W.sqrt <- sqrt(W) 
     B <- diag(1, nrow(K)) + W.sqrt %*% K %*% W.sqrt
     L <- chol(B)
-    b <- W %*% f
+    b <- W %*% f + cbind(y - pi)
+    a <- b - solve(W.sqrt %*% t(L), solve(L, W.sqrt %*% K %*% b))
 
+    # update f
+    f <- K %*% a
+
+    # recalculate objective function
+    obj <- -0.5 * t(a) %*% f - log(1 + exp(-y.svm %*% f))
 }
 ```
