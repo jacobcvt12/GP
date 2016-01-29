@@ -150,6 +150,47 @@ ggplot(post.data, aes(x=x, y=f)) +
     guides(colour=FALSE)
 ```
 
+Now we try the same procedure but assume *noisy* observations.
+
+```{r noisy}
+# libraries
+library(ggplot2)
+library(mvtnorm)
+library(fields)
+library(tidyr)
+library(dplyr)
+theme_set(theme_classic())
+
+# posterior with noisy observations
+# y = f(x) + eps
+sigma2.n <- 0.2        # "known" variance of eps
+# generate data
+x.star <- seq(-5, 5, len=100)
+x <- sample(x.star, 20)
+y <- x * sin(x) + rnorm(length(x), 0, sqrt(sigma2.n))
+f.points <- data.frame(x=x, y=y)
+
+post.mean <- K(x.star, x) %*% (solve(K(x, x) + sigma2.n * diag(1, length(x)))) %*% y
+post.var <- K(x.star, x.star) - K(x.star, x) %*% solve(K(x, x) + sigma2.n * diag(1, length(x))) %*% K(x, x.star)
+
+# draws from f.star | X, y, X.star
+post.draws <- rmvnorm(3, post.mean, post.var, method="svd")
+
+# transform to data frame
+post.data <- data.frame(t(post.draws))
+post.data$x <- x.star
+post.data <- gather(post.data, draw, f, X1:X3) %>%
+    group_by(draw) %>%
+    mutate(ll=f - qnorm(0.975) * sqrt(diag(post.var)),
+           ul=f + qnorm(0.975) * sqrt(diag(post.var)))
+
+ggplot(post.data, aes(x=x, y=f)) +
+    geom_line(aes(colour=draw)) +
+    geom_point(data=f.points, aes(x, y), shape="+", size=6) +
+    geom_ribbon(aes(ymin=ll, ymax=ul), fill="lightgrey", alpha=0.5) +
+    guides(colour=FALSE)
+```
+
 # 2.3 Varying the Hyperparameters
 
 # 2.4 Decision Theory for Regression
