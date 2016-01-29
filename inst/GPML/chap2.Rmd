@@ -219,10 +219,17 @@ Example of varying the hyperparameters and selection between a few models based 
 
 ```{r fig-2.5}
 # squared exponential with hyperparameters
-K <- function(X.p, X.q, ell, sigma2.f) {
-    sigma <- exp(-0.5 * rdist(X.p, X.q) ^ 2)
-    return(sigma)
+K <- function(X.p, X.q, ell=1, sigma2.f=1, sigma2.n=0.1) {
+    n <- ifelse(is.matrix(X.p), nrow(X.p), length(X.p))
+    ell <- diag(1 / ell, n)
+    k <- sigma2.f * exp(-0.5 * rdist(ell %*% X.p, ell %*% X.q) ^ 2) + diag(sigma2.n, n)
+    return(k)
 }
+
+# generate data from GP with (l, sigma.f, sigma.n)=(1, 1, 0.1)
+x <- sample(seq(-7.5, 7.5, len=1000), 20)
+y <- as.vector(rmvnorm(1, mean=rep(0, length(x)), 
+                       sigma=K(x, x, sigma2.n=0.1 ^ 2), method="svd"))
 ```
 
 # 2.4 Decision Theory for Regression
