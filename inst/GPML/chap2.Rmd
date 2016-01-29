@@ -215,6 +215,16 @@ log.marg.lik <- -0.5 * t(y) %*% alpha - sum(diag(L)) - N / 2 * log(2 * pi)
 
 # 2.3 Varying the Hyperparameters
 
+Example of varying the hyperparameters and selection between a few models based on log marginal likelihood.
+
+```{r fig-2.5}
+# squared exponential with hyperparameters
+K <- function(X.p, X.q, ell, sigma2.f) {
+    sigma <- exp(-0.5 * rdist(X.p, X.q) ^ 2)
+    return(sigma)
+}
+```
+
 # 2.4 Decision Theory for Regression
 
 # 2.5 An Example Application
