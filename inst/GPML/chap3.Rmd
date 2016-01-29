@@ -46,13 +46,13 @@ ggplot(data, aes(x, y)) +
 model <- glm(y ~ x - 1, family="binomial") # doesn't work
 
 # GP classification
-K <- function(X.p, X.q=NULL) {
+K.func <- function(X.p, X.q=NULL) {
     sigma <- exp(-0.5 * rdist(X.p, X.q) ^ 2)
     return(sigma)
 }
 
 f <- rep(0, length(x))   # initialize to 0 
-K <- K(x)                # calcualte K
+K <- K.func(x)           # calcualte K
 eps <- 0.1               # convergence criterion
 y.svm <- y
 y.svm[y.svm == 0] <- -1  # svm notation
