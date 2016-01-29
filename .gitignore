@@ -1,3 +1,4 @@
 *.pdf
 *.RDS
 *.mat
+inst/GPML/gpml-matlab/*
