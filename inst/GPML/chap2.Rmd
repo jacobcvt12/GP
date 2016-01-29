@@ -94,6 +94,57 @@ Since the feature space always enters in a similar fashion we define the *covari
 
 # 2.2 Function-space View
 
+```{r fig2-2}
+# libraries
+library(ggplot2)
+library(mvtnorm)
+library(fields)
+library(tidyr)
+theme_set(theme_classic())
+
+# data
+f.points <- data.frame(x=c(-4,-3,-1,0,2), y=c(-2,0,1,2,-1))
+
+# K function
+K <- function(X.p, X.q=NULL) {
+    sigma <- exp(-0.5 * rdist(X.p, X.q) ^ 2)
+    return(sigma)
+}
+
+# prior
+set.seed(1)
+N <- 500 # control fineness
+x.star <- seq(-5, 5, len=N) # grid
+f.star <- rmvnorm(3, mean=rep(0, N), sigma=K(x.star), method="svd")
+
+# plot draws from prior
+data <- data.frame(t(f.star))
+data$x <- x.star
+data <- gather(data, draw, f, X1:X3)
+
+ggplot(data, aes(x=x, y=f)) +
+    geom_line(aes(colour=draw, linetype=draw)) +
+    geom_rect(aes(xmin=-Inf, xmax=Inf, 
+                  ymin=qnorm(0.025), ymax=qnorm(0.975)),
+              fill="lightgrey", alpha=0.1) +
+    guides(colour="none", linetype="none")
+
+# posterior
+x <- f.points$x
+f <- f.points$y
+post.mean <- K(x.star, x) %*% solve(K(x, x)) %*% f
+post.var <- K(x.star, x.star) - K(x.star, x) %*% solve(K(x, x)) %*% K(x, x.star)
+post.draws <- rmvnorm(3, post.mean, post.var, method="svd")
+post.data <- data.frame(t(post.draws))
+post.data$x <- x.star
+post.data <- gather(post.data, draw, f, X1:X3)
+
+ggplot(post.data, aes(x=x, y=f)) +
+    geom_line(aes(colour=draw)) +
+    geom_point(data=f.points, aes(x, y), shape="+", size=6) +
+    guides(colour=FALSE)
+```
+
 # 2.3 Varying the Hyperparameters
 
 # 2.4 Decision Theory for Regression
