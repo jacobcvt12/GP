@@ -100,6 +100,7 @@ library(ggplot2)
 library(mvtnorm)
 library(fields)
 library(tidyr)
+library(dplyr)
 theme_set(theme_classic())
 
 # data
@@ -137,11 +138,15 @@ post.var <- K(x.star, x.star) - K(x.star, x) %*% solve(K(x, x)) %*% K(x, x.star)
 post.draws <- rmvnorm(3, post.mean, post.var, method="svd")
 post.data <- data.frame(t(post.draws))
 post.data$x <- x.star
-post.data <- gather(post.data, draw, f, X1:X3)
+post.data <- gather(post.data, draw, f, X1:X3) %>%
+    group_by(draw) %>%
+    mutate(ll=f - qnorm(0.975) * sqrt(diag(post.var)),
+           ul=f + qnorm(0.975) * sqrt(diag(post.var)))
 
 ggplot(post.data, aes(x=x, y=f)) +
     geom_line(aes(colour=draw)) +
     geom_point(data=f.points, aes(x, y), shape="+", size=6) +
+    geom_ribbon(aes(ymin=ll, ymax=ul), fill="lightgrey", alpha=0.5) +
     guides(colour=FALSE)
 ```
 
