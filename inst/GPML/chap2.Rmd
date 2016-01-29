@@ -194,10 +194,10 @@ ggplot(post.data, aes(x=x, y=f)) +
 Here we implment Algorithm 2.1 for one test point
 
 ```{r alg-2.1}
-N <- 100 # number of training points
+N <- 1000 # number of training points
 X <- cbind(seq(-5, 5, len=N), seq(10, 12, len=N)) # training input
-f <- function(x) sin(x[1]) ^ 2 + x[2] * cos(x[2]) # true function
-sigma2.n <- 0.05 # known variance
+f <- function(x) sum(x ^ 2) # true function
+sigma2.n <- 0.2 # known variance
 y <- apply(X, 1, f) + rnorm(N, 0, sqrt(sigma2.n)) # targets
 x.star <- cbind(3, 11)   # one target point
 
@@ -205,10 +205,10 @@ x.star <- cbind(3, 11)   # one target point
 k.star <- K(X, x.star)
 pi <- 3.14159
 
-L <- chol(K(X) + sigma2.n * diag(1, nrow(X)))
-alpha <- solve(t(L), solve(L, y))
+L <- chol(K(X) + sigma2.n * diag(1, nrow(X))) # R chol returns *upper triangular matrix*
+alpha <- backsolve(L, forwardsolve(t(L), y))  # specify forward/backsolve (n^2/2 vs n^3 big Oh)
 post.mean <- t(k.star) %*% alpha
-v <- solve(L, k.star)
+v <- forwardsolve(t(L), k.star)
 post.var <- K(x.star, x.star) - t(v) %*% v
 log.marg.lik <- -0.5 * t(y) %*% alpha - sum(diag(L)) - N / 2 * log(2 * pi)
 ```
