@@ -5,6 +5,8 @@ date: \today
 output: pdf_document
 ---
 
+Here we generate some binomial data and visualize.
+
 ```{r}
 # libraries
 library(ggplot2)
@@ -14,12 +16,11 @@ theme_set(theme_classic())
 
 # generate binomial data for linear model
 set.seed(90210)
-N <- 100
+N <- 10
 beta <- 2.5
 
-x.star <- seq(-10, 10, len=N ^ 2)
-x <- sample(x.star, N)
-z <- beta * x
+x <- seq(-1, 1, len=N)
+z <- beta * x                       # linear function
 p <- 1 / (1 + exp(-z))
 y <- rbinom(N, 1, p)
 
@@ -28,23 +29,11 @@ data <- data.frame(x=x, p=p, y=y)
 ggplot(data, aes(x, y)) +
     geom_point() +
     geom_line(aes(x=x, y=p))
+```
 
-# frequentist estimate
-model <- glm(y ~ x - 1, family="binomial")
+Now we naively use the laplace approximation for the binary GP classifier.
 
-# now generate binomial data for nonlinear model
-z <- sin(x)
-p <- 1 / (1 + exp(-z))
-y <- rbinom(N, 1, p)
-
-data <- data.frame(x=x, p=p, y=y)
-
-ggplot(data, aes(x, y)) +
-    geom_point() +
-    geom_line(aes(x=x, y=p))
-
-model <- glm(y ~ x - 1, family="binomial") # doesn't work
-
+```{r}
 # GP classification
 K.func <- function(X.p, X.q=NULL) {
     sigma <- exp(-0.5 * rdist(X.p, X.q) ^ 2)
@@ -53,26 +42,45 @@ K.func <- function(X.p, X.q=NULL) {
 
 f <- rep(0, length(x))   # initialize to 0 
 K <- K.func(x)           # calcualte K
-eps <- 0.1               # convergence criterion
+K.inv <- solve(K)        # inverse of K
 y.svm <- y
-y.svm[y.svm == 0] <- -1  # svm notation
+y.svm[y == 0] <- -1
 
 # initialize objective function to high value
 obj <- 1000
+eps <- 1e-6
 
 # repeat until convergence
 while (obj > eps) {
     # calculate probability using logistic function
     pi <- as.vector(1 / (1 + exp(-f)))
+
     # construct W (- Hessian of logistic log likelihood)
     W <- diag(pi * (1 - pi))
+
+    # calculate gradient
+    grad <- y - pi
+
+    f <- solve(K.inv + W) %*% (W %*% f + grad)
+
+    obj <- (y - as.vector(1 / (1 + exp(-f)))) - K.inv %*% f
+    obj <- sum(obj ^ 2)
+    message(obj)
+}
+```
+
+Now write algorithm 3.1 to more efficiently perform the laplace approximation.
+
+```{r}
+
+while (FALSE) {
     # take square root of W for calculating B
     # can just use sqrt since W is diagonal
     W.sqrt <- sqrt(W) 
     B <- diag(1, nrow(K)) + W.sqrt %*% K %*% W.sqrt
-    L <- chol(B)
+    L <- t(chol(B))
     b <- W %*% f + cbind(y - pi)
-    a <- b - solve(W.sqrt %*% t(L), solve(L, W.sqrt %*% K %*% b))
+    a <- b - backsolve(W.sqrt %*% t(L), forwardsolve(L, W.sqrt %*% K %*% b))
 
     # update f
     f <- K %*% a
