@@ -16,15 +16,15 @@ theme_set(theme_classic())
 
 # generate binomial data for linear model
 set.seed(90210)
-N <- 10
+N <- 500
 beta <- 2.5
 
 x <- seq(-1, 1, len=N)
 z <- beta * x                       # linear function
-p <- 1 / (1 + exp(-z))
-y <- rbinom(N, 1, p)
+p.true <- 1 / (1 + exp(-z))
+y <- rbinom(N, 1, p.true)
 
-data <- data.frame(x=x, p=p, y=y)
+data <- data.frame(x=x, p=p.true, y=y)
 
 ggplot(data, aes(x, y)) +
     geom_point() +
@@ -42,9 +42,7 @@ K.func <- function(X.p, X.q=NULL) {
 
 f <- rep(0, length(x))   # initialize to 0 
 K <- K.func(x)           # calcualte K
-K.inv <- solve(K)        # inverse of K
-y.svm <- y
-y.svm[y == 0] <- -1
+I <- diag(1, length(x))
 
 # initialize objective function to high value
 obj <- 1000
@@ -57,11 +55,20 @@ while (obj > eps) {
 
     # construct W (- Hessian of logistic log likelihood)
     W <- diag(pi * (1 - pi))
+    W.sqrt <- sqrt(W)
 
     # calculate gradient
     grad <- y - pi
 
-    f <- solve(K.inv + W) %*% (W %*% f + grad)
+    B <- I + W.sqrt %*% K %*% W.sqrt
+    L <- t(chol(B))
+    b <- W %*% f + grad
+    a <- b - backsolve(W.sqrt %*% t(L), forwardsolve(L, W.sqrt %*% K %*% b))
+    f <- K %*% a
+
+    # update (works!)
+    f <- K %*% solve(I + W %*% K) %*% (W %*% f + grad)
+
 
     obj <- (y - as.vector(1 / (1 + exp(-f)))) - K.inv %*% f
     obj <- sum(obj ^ 2)
