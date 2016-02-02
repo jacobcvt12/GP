@@ -16,7 +16,7 @@ theme_set(theme_classic())
 
 # generate binomial data for linear model
 set.seed(90210)
-N <- 10
+N <- 1000
 beta <- 2.5
 
 x <- seq(-1, 1, len=N)
@@ -46,10 +46,11 @@ I <- diag(1, length(x))
 
 # initialize objective function to high value
 obj <- 1000
+obj.new <- 0
 eps <- 1e-6
 
 # repeat until convergence
-while (obj > eps) {
+while (abs(obj) > eps) {
     # calculate probability using logistic function
     pi <- as.vector(1 / (1 + exp(-f)))
 
@@ -63,20 +64,12 @@ while (obj > eps) {
     B <- I + W.sqrt %*% K %*% W.sqrt
     L <- chol(B)
     b <- W %*% f + grad
-    a <- b - forwardsolve(W.sqrt %*% t(L), backsolve(L, W.sqrt %*% K %*% b))
-#     f <- K %*% a
+    a <- b - W.sqrt %*% backsolve(L, forwardsolve(t(L), W.sqrt %*% K %*% b))
+    f <- K %*% a
 
-    post.lemma <- K - K %*% W.sqrt %*% solve(B) %*% W.sqrt %*% K
-    f.fast <- post.lemma %*% (W %*% f + grad)
-
-    # update (works!)
-    f.slow <- K %*% solve(I + W %*% K) %*% (W %*% f + grad)
-    f <- K %*% solve(I + W %*% K) %*% (W %*% f + grad)
-    all.equal(f.fast, f.slow)
-
-    obj <- (y - as.vector(1 / (1 + exp(-f)))) - K.inv %*% f
-    obj <- sum(obj ^ 2)
-    message(obj)
+    obj.old <- obj.new
+    obj.new <- -0.5 * t(a) %*% f + sum(-log(1 + exp(-as.vector(f))))
+    obj <- obj.new - obj.old
 }
 ```
 
