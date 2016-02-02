@@ -16,11 +16,11 @@ theme_set(theme_classic())
 
 # generate binomial data for linear model
 set.seed(90210)
-N <- 1000
+N <- 10000
 beta <- 2.5
 
 x <- seq(-1, 1, len=N)
-z <- beta * x                       # linear function
+z <- 4 * x + beta * x ^ 2 + 7.6 * x ^ 3                       # linear function
 p.true <- 1 / (1 + exp(-z))
 y <- rbinom(N, 1, p.true)
 
@@ -70,26 +70,5 @@ while (abs(obj) > eps) {
     obj.old <- obj.new
     obj.new <- -0.5 * t(a) %*% f + sum(-log(1 + exp(-as.vector(f))))
     obj <- obj.new - obj.old
-}
-```
-
-Now write algorithm 3.1 to more efficiently perform the laplace approximation.
-
-```{r}
-
-while (FALSE) {
-    # take square root of W for calculating B
-    # can just use sqrt since W is diagonal
-    W.sqrt <- sqrt(W) 
-    B <- diag(1, nrow(K)) + W.sqrt %*% K %*% W.sqrt
-    L <- t(chol(B))
-    b <- W %*% f + cbind(y - pi)
-    a <- b - backsolve(W.sqrt %*% t(L), forwardsolve(L, W.sqrt %*% K %*% b))
-
-    # update f
-    f <- K %*% a
-
-    # recalculate objective function
-    obj <- -0.5 * t(a) %*% f - log(1 + exp(-y.svm %*% f))
 }
 ```
