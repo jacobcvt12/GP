@@ -64,7 +64,7 @@ while (obj > eps) {
     L <- chol(B)
     b <- W %*% f + grad
     a <- b - forwardsolve(W.sqrt %*% t(L), backsolve(L, W.sqrt %*% K %*% b))
-    f <- K %*% a
+#     f <- K %*% a
 
     post.lemma <- K - K %*% W.sqrt %*% solve(B) %*% W.sqrt %*% K
     f.fast <- post.lemma %*% (W %*% f + grad)
