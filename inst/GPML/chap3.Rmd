@@ -71,4 +71,38 @@ while (abs(obj) > eps) {
     obj.new <- -0.5 * t(a) %*% f + sum(-log(1 + exp(-as.vector(f))))
     obj <- obj.new - obj.old
 }
+
+x.star <- 1.05
+
+# laplace approximation for binary GP classifier
+pi <- as.vector(1 / (1 + exp(-f)))
+
+# construct W (- Hessian of logistic log likelihood)
+W <- diag(pi * (1 - pi))
+W.sqrt <- sqrt(W)
+
+# calculate gradient
+grad <- y - pi
+
+# covariance of x and x.star
+k.star <- K.func(x, x.star)
+
+# choleski decomposition
+B <- I + W.sqrt %*% K %*% W.sqrt
+L <- chol(B)
+
+# mean predictive posterior f
+f.bar.star <- t(k.star) %*% grad
+
+# variance of predictive posterior f
+v <- forwardsolve(t(L), W.sqrt %*% k.star)
+V.f.star <- K.func(x.star, x.star) - t(v) %*% v
+
+b <- W %*% f + grad
+a <- b - W.sqrt %*% backsolve(L, forwardsolve(t(L), W.sqrt %*% K %*% b))
+f <- K %*% a
+
+obj.old <- obj.new
+obj.new <- -0.5 * t(a) %*% f + sum(-log(1 + exp(-as.vector(f))))
+obj <- obj.new - obj.old
 ```
