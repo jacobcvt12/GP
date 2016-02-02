@@ -16,7 +16,7 @@ theme_set(theme_classic())
 
 # generate binomial data for linear model
 set.seed(90210)
-N <- 500
+N <- 10
 beta <- 2.5
 
 x <- seq(-1, 1, len=N)
@@ -61,14 +61,18 @@ while (obj > eps) {
     grad <- y - pi
 
     B <- I + W.sqrt %*% K %*% W.sqrt
-    L <- t(chol(B))
+    L <- chol(B)
     b <- W %*% f + grad
-    a <- b - backsolve(W.sqrt %*% t(L), forwardsolve(L, W.sqrt %*% K %*% b))
+    a <- b - forwardsolve(W.sqrt %*% t(L), backsolve(L, W.sqrt %*% K %*% b))
     f <- K %*% a
 
-    # update (works!)
-    f <- K %*% solve(I + W %*% K) %*% (W %*% f + grad)
+    post.lemma <- K - K %*% W.sqrt %*% solve(B) %*% W.sqrt %*% K
+    f.fast <- post.lemma %*% (W %*% f + grad)
 
+    # update (works!)
+    f.slow <- K %*% solve(I + W %*% K) %*% (W %*% f + grad)
+    f <- K %*% solve(I + W %*% K) %*% (W %*% f + grad)
+    all.equal(f.fast, f.slow)
 
     obj <- (y - as.vector(1 / (1 + exp(-f)))) - K.inv %*% f
     obj <- sum(obj ^ 2)
