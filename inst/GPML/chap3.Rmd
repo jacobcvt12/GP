@@ -98,11 +98,12 @@ f.bar.star <- t(k.star) %*% grad
 v <- forwardsolve(t(L), W.sqrt %*% k.star)
 V.f.star <- K.func(x.star, x.star) - t(v) %*% v
 
-b <- W %*% f + grad
-a <- b - W.sqrt %*% backsolve(L, forwardsolve(t(L), W.sqrt %*% K %*% b))
-f <- K %*% a
-
-obj.old <- obj.new
-obj.new <- -0.5 * t(a) %*% f + sum(-log(1 + exp(-as.vector(f))))
-obj <- obj.new - obj.old
+# calculate integral by monte carlo
+# details:
+# let f(x) = Normal(x | f.bar.star, V.f.star)
+# then \int \sigma(x) f(x) dx = E_f[h(x)]
+# expected value by sampling X_1, ..., X_n ~ f and
+# \bar{\sigma}_n = \frac{1}{n} \sum \sigma(x_i)
+# note that 1,000 monte carlo samples is usually a decent approximation
+pi.bar.star <- mean(1 / (1 + exp(-rnorm(1e3, f.bar.star, sqrt(V.f.star)))))
 ```
